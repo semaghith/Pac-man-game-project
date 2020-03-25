@@ -4,23 +4,38 @@
 using namespace sf;
 int main(){
 
-    RenderWindow window(VideoMode(250,250), "");
+    RenderWindow window(VideoMode(620,700)," ") ;  
 
-    RectangleShape firstimage(Vector2f(1080,2340));
+    RectangleShape player(Vector2f(620, 700));    // INTRO RECT. IMAGE
 
-    while (window.isOpen()) {     // Game loop 
-        
-        Event event;
-
-        while (window.pollEvent(event)) {
-
-            if (event.type == Event::Closed)
-                window.close();
-        }
+    Texture image1;                              // INTRO IMAGE
+    image1.loadFromFile("data/PAC-MAN-Game.jpg");
+    player.setTexture(&image1);
+   
+    
+    Font font;
+    if (font.loadFromFile("data/arial.ttf") == 0) {
+        return 0;
     }
-    window.clear();
-    window.draw(firstimage);
-    window.display();
 
+    Text start;    //INTRO TEXT
+    start.setFont(font);
+    start.setCharacterSize(30);
+    start.setString("TAP TO START!");
+    start.setFillColor(Color::Yellow);
+    start.setPosition(200, 450);
+    
+    while (window.isOpen()) {               // GAME LOOP
+        Event event;
+        while (window.pollEvent(event)) {
+            switch (event.type) {
+            case Event::Closed: window.close();
+                break;
+
+            }
+        }
+        window.clear();
+        window.display() ;
+    }
     return 0;
 }
