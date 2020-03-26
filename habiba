@@ -50,18 +50,16 @@ int main()
 	while (window.isOpen())
 	{
 		Event event;
-		while (window.pollEvent(event))
-		{
-			switch (event.type)
-			{
-			case Event::Closed:
-				window.close();
-				break;
-			default:
-				break;
-			}
+                while (window.pollEvent(event))
+                {
+                   if (event.type == Event::Closed) 
+                   {
+                       window.close();
+                   }
 		}
+
 		pacman.move(directionX, directionY);
+
 		if (Keyboard::isKeyPressed(Keyboard::Up))
 		{
 			directionX = 0.0, directionY = -1.0;
