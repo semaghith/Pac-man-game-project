@@ -14,10 +14,8 @@ int main() {
 
 
     Font font;
-    if (font.loadFromFile("data/arial.ttf") == 0) {
-        return 0;
-    }
-
+   font.loadFromFile("data/arial.ttf");
+       
     Text start;                                            //INTRO TEXT
     start.setFont(font);
     start.setCharacterSize(30);
