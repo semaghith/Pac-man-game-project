@@ -1,0 +1,100 @@
+#include <iostream>
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
+using namespace std;
+using namespace sf;
+
+
+int main()
+{
+	RenderWindow window(VideoMode(800, 600), "Pacman", Style::Close);
+	//window.setVerticalSyncEnabled(true);
+	window.setFramerateLimit(60);
+
+	Texture background;
+	if (!background.loadFromFile("Data/maze.png"))
+	{
+		//error.
+	}
+	Texture right;
+	if (!right.loadFromFile("Data/pacman-right.png"))
+	{
+		//error.
+	}
+	Texture left;
+	if (!left.loadFromFile("Data/pacman-left.png"))
+	{
+		//error.
+	}
+	Texture up;
+	if (!up.loadFromFile("Data/pacman-up.png"))
+	{
+		//error.
+	}
+	Texture down;
+	if (!down.loadFromFile("Data/pacman-down.png"))
+	{
+		//error.
+	}
+
+	Sprite maze;
+	maze.setTexture(background);
+	maze.setOrigin(240, 263);
+	maze.setPosition(400, 300);
+
+	Sprite pacman;
+	pacman.setTexture(left);
+	pacman.setPosition(389, 321);
+
+	float directionX = -1.0, directionY = 0.0;
+	while (window.isOpen())
+	{
+		Event event;
+		while (window.pollEvent(event))
+		{
+			switch (event.type)
+			{
+			case Event::Closed:
+				window.close();
+				break;
+			default:
+				break;
+			}
+		}
+		pacman.move(directionX, directionY);
+		if (Keyboard::isKeyPressed(Keyboard::Up))
+		{
+			directionX = 0.0, directionY = -1.0;
+			pacman.setTexture(up);
+		}
+		if (Keyboard::isKeyPressed(Keyboard::Down))
+		{
+			directionX = 0.0, directionY = 1.0;
+			pacman.setTexture(down);
+		}
+		if (Keyboard::isKeyPressed(Keyboard::Left))
+		{
+			directionX = -1.0, directionY = 0.0;
+			pacman.setTexture(left);
+		}
+		if (Keyboard::isKeyPressed(Keyboard::Right))
+		{
+			directionX = 1.0, directionY = 0.0;
+			pacman.setTexture(right);
+		}
+		if (pacman.getPosition().x >= 611 && pacman.getPosition().y == 270)
+		{
+			pacman.setPosition(160, 275);
+		}
+		else if (pacman.getPosition().x <= 160 && pacman.getPosition().y == 270)
+		{
+			pacman.setPosition(620, 275);
+		}
+
+		window.clear(Color::Black);
+		window.draw(maze);
+		window.draw(pacman);
+		window.display();
+	}
+	return 0;
+}
