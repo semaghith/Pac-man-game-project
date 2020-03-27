@@ -3,40 +3,70 @@
 
 using namespace sf;
 
-int main(){   
-    RenderWindow window(VideoMode(620,700)," ") ;
+int main(){
 
-    RectangleShape player(Vector2f(620, 700));            // INTRO RECT. IMAGE
+    RenderWindow window(VideoMode(620, 700), " ");  
+    window.setFramerateLimit(60);
 
-    Texture image1;                                      //INTRO IMAGE
-    image1.loadFromFile("data/PAC-MAN-Game.jpg");
-    player.setTexture(&image1);
-   
-    
+    //variables
+    bool KeyPressed = false;
+
+    //shapes
+    RectangleShape start;
+    start.setSize(Vector2f(620, 700));
+
+    RectangleShape game;
+    game.setSize(sf::Vector2f(620, 700));
+
+
+    //images
+    Texture background;
+    background.loadFromFile("data/PAC-MAN-Game.jpg");
+    start.setTexture(&background);
+
+    Texture map;
+    map.loadFromFile("data/pacmanworld.jpg");
+    game.setTexture(&map);
+
+    //font
     Font font;
-    if (font.loadFromFile("data/arial.ttf") == 0) {
-        return 0;
-    }
+    font.loadFromFile("data/arial.ttf");
 
-    Text start;                                             //INTRO TEXT
-    start.setFont(font);
-    start.setCharacterSize(30);
-    start.setString("TAP TO START!");
-    start.setFillColor(Color::Yellow);
-    start.setPosition(200, 450);
-    
-    while (window.isOpen()) {                               // GAME LOOP
+    Text tap;
+
+    tap.setFont(font);
+    tap.setFillColor(Color::Yellow);
+    tap.setString("TAP TO START!");
+    tap.setCharacterSize(30);
+    tap.setPosition(200, 450);
+
+    //Game loop
+    while ( window.isOpen() )            
+    {
         Event event;
         while (window.pollEvent(event)) {
-           if (event.type == Event::Closed ) {
-               window.close();
-           }
+            
+            if (event.type == Event::Closed)
+                   window.close() ;
+            
+            if (event.type == Event::KeyPressed)
+                   KeyPressed = true;
+            
+            //logic
+            if (KeyPressed == true) {
+                start.setFillColor(Color::Transparent);
+                tap.setFillColor(Color::Transparent);
+
+            }
         }
-       
-        window.clear();
-        window.draw(player);
-        window.draw(start);
-        window.display() ;
+            //rendring
+
+            window.clear();
+            window.draw(game);                   
+            window.draw(start);               
+            window.draw(tap);
+            window.display();
+        
     }
     return 0;
 }
