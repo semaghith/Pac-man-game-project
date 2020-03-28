@@ -1,0 +1,136 @@
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+
+using namespace sf;
+
+int main() {
+
+    RenderWindow window(VideoMode(620, 700), " ");
+    window.setFramerateLimit(60);
+	//window.setVerticalSyncEnabled(true);
+
+    //variables
+    bool KeyPressed = false;
+
+    //shapes
+    RectangleShape start;
+    start.setSize(Vector2f(620, 700));
+
+    RectangleShape game;
+    game.setSize(sf::Vector2f(520, 600));
+	game.setPosition(50,75);
+
+
+    //Textures
+    Texture background;
+    background.loadFromFile("Data/PAC-MAN-Game.jpg");
+    start.setTexture(&background);
+
+    Texture map;
+    map.loadFromFile("Data/maze.jpeg");
+    game.setTexture(&map);
+
+
+	//Pac-man Textures
+	Texture right;
+	if (!right.loadFromFile("Data/pacman-right.jpeg"))
+	{
+		//error.
+	}
+	Texture left;
+	if (!left.loadFromFile("Data/pacman-left.jpeg"))
+	{
+		//error.
+	}
+	Texture up;
+	if (!up.loadFromFile("Data/pacman-up.jpeg"))
+	{
+		//error.
+	}
+	Texture down;
+	if (!down.loadFromFile("Data/pacman-down.jpeg"))
+	{
+		//error.
+	}
+
+	//Sprite
+	Sprite pacman;
+	pacman.setTexture(left);
+	pacman.setPosition(298, 402);
+
+    //font
+    Font font;
+    font.loadFromFile("Data/arial.ttf");
+
+	//Text
+    Text tap;
+    tap.setFont(font);
+    tap.setFillColor(Color::Yellow);
+    tap.setString("TAP TO START!");
+    tap.setCharacterSize(30);
+    tap.setPosition(200, 450);
+
+	float directionX = -1.0, directionY = 0.0;
+		  
+    //Game loop
+    while (window.isOpen())
+    {
+        Event event;
+        while (window.pollEvent(event)) {
+
+            if (event.type == Event::Closed)
+                window.close();
+
+            if (event.type == Event::KeyPressed)
+                KeyPressed = true;
+
+            //logic
+            if ( KeyPressed ) 
+			{
+                start.setFillColor(Color::Transparent);
+                tap.setFillColor(Color::Transparent);
+            }
+        }
+		      pacman.move(directionX, directionY);
+		
+		  if (Keyboard::isKeyPressed(Keyboard::Up))
+		  {
+			  directionX = 0.0, directionY = -1.0;
+			  pacman.setTexture(up);
+		  }
+		  if (Keyboard::isKeyPressed(Keyboard::Down))
+		  {
+			  directionX = 0.0, directionY = 1.0;
+			  pacman.setTexture(down);
+		  }
+		  if (Keyboard::isKeyPressed(Keyboard::Left))
+		  {
+			  directionX = -1.0, directionY = 0.0;
+			  pacman.setTexture(left);
+		  }
+		  if (Keyboard::isKeyPressed(Keyboard::Right))
+		  {
+			  directionX = 1.0, directionY = 0.0;
+			  pacman.setTexture(right);
+		  }
+		  if (pacman.getPosition().x >= 555 && pacman.getPosition().y == 342)
+		  {
+			pacman.setPosition(48, 343);
+		  }
+		  else if (pacman.getPosition().x <= 49 && pacman.getPosition().y == 342)
+		  {
+			pacman.setPosition(554, 343);
+		  }
+
+        //rendring
+
+        window.clear();
+        window.draw(game);
+		window.draw(pacman);
+        window.draw(start);
+        window.draw(tap);
+        window.display();
+
+    }
+    return 0;
+}
