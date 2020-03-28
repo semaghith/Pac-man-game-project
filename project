@@ -56,7 +56,7 @@ int main() {
     //Sprite
     Sprite pacman;
     pacman.setTexture(left);
-    pacman.setPosition(298, 402);
+    pacman.setPosition(298, 517);
 
     //font
     Font font;
