@@ -53,16 +53,16 @@ int main() {
 		//error.
 	}
 
-	//Sprite
-	Sprite pacman;
-	pacman.setTexture(left);
-	pacman.setPosition(298, 402);
+    //Sprite
+    Sprite pacman;
+    pacman.setTexture(left);
+    pacman.setPosition(298, 402);
 
     //font
     Font font;
     font.loadFromFile("Data/arial.ttf");
 
-	//Text
+    //Text
     Text tap;
     tap.setFont(font);
     tap.setFillColor(Color::Yellow);
@@ -70,7 +70,7 @@ int main() {
     tap.setCharacterSize(30);
     tap.setPosition(200, 450);
 
-	float directionX = -1.0, directionY = 0.0;
+      float directionX = -1.0, directionY = 0.0;
 		  
     //Game loop
     while (window.isOpen())
@@ -113,6 +113,7 @@ int main() {
 			  directionX = 1.0, directionY = 0.0;
 			  pacman.setTexture(right);
 		  }
+                  
 		  if (pacman.getPosition().x >= 555 && pacman.getPosition().y == 342)
 		  {
 			pacman.setPosition(48, 343);
@@ -123,10 +124,10 @@ int main() {
 		  }
 
         //rendring
-
+        
         window.clear();
         window.draw(game);
-		window.draw(pacman);
+        window.draw(pacman);
         window.draw(start);
         window.draw(tap);
         window.display();
