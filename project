@@ -5,7 +5,7 @@ using namespace sf;
 
 int main() {
 
-    RenderWindow window(VideoMode(620, 700), " ");
+    RenderWindow window(VideoMode(600, 800), " ");
     window.setFramerateLimit(60);
 	//window.setVerticalSyncEnabled(true);
 
@@ -14,11 +14,12 @@ int main() {
 
     //shapes
     RectangleShape start;
-    start.setSize(Vector2f(620, 700));
+    start.setSize(Vector2f(600, 600));
+	start.setPosition(0,120);
 
     RectangleShape game;
-    game.setSize(sf::Vector2f(520, 600));
-	game.setPosition(50,75);
+    game.setSize(sf::Vector2f(600, 600));
+	game.setPosition(0,120);
 
 
     //Textures
@@ -53,16 +54,19 @@ int main() {
 		//error.
 	}
 
-    //Sprite
-    Sprite pacman;
-    pacman.setTexture(left);
-    pacman.setPosition(298, 517);
+	//Sprite
+	Sprite pacman;
+	pacman.setTexture(left);
+	pacman.setPosition(290, 562);
 
     //font
     Font font;
     font.loadFromFile("Data/arial.ttf");
 
-    //Text
+	Font fontready;
+	font.loadFromFile("Data/arial.ttf");
+
+	//Text
     Text tap;
     tap.setFont(font);
     tap.setFillColor(Color::Yellow);
@@ -70,7 +74,15 @@ int main() {
     tap.setCharacterSize(30);
     tap.setPosition(200, 450);
 
-      float directionX = -1.0, directionY = 0.0;
+	
+	/*Text ready;
+	tap.setFont(fontready);
+	tap.setFillColor(Color::Red);
+	tap.setString("READY!");
+	tap.setCharacterSize(22);
+	tap.setPosition(272, 401);*/
+
+	float directionX = -1.0, directionY = 0.0;
 		  
     //Game loop
     while (window.isOpen())
@@ -91,7 +103,7 @@ int main() {
                 tap.setFillColor(Color::Transparent);
             }
         }
-		      pacman.move(directionX, directionY);
+		      pacman.move(directionX, directionY);                 //logical error
 		
 		  if (Keyboard::isKeyPressed(Keyboard::Up))
 		  {
@@ -113,21 +125,21 @@ int main() {
 			  directionX = 1.0, directionY = 0.0;
 			  pacman.setTexture(right);
 		  }
-                  
-		  if (pacman.getPosition().x >= 555 && pacman.getPosition().y == 342)
+		  if (pacman.getPosition().x == 600 && pacman.getPosition().y >= 389)
 		  {
-			pacman.setPosition(48, 343);
+			pacman.setPosition(0, 388);
 		  }
-		  else if (pacman.getPosition().x <= 49 && pacman.getPosition().y == 342)
+		  else if (pacman.getPosition().x == 0 && pacman.getPosition().y >= 389)
 		  {
-			pacman.setPosition(554, 343);
+			pacman.setPosition(600, 388);
 		  }
 
         //rendring
-        
+
         window.clear();
         window.draw(game);
-        window.draw(pacman);
+		window.draw(pacman);
+		//window.draw(ready);
         window.draw(start);
         window.draw(tap);
         window.display();
