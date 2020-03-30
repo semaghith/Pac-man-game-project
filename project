@@ -81,7 +81,7 @@ int main()
 	tap.setCharacterSize(22);
 	tap.setPosition(272, 401);*/
 
-	float directionX = -1.0, directionY = 0.0;
+	float directionX = 0.0, directionY = 0.0;
 
 	//Game loop
 	while (window.isOpen())
