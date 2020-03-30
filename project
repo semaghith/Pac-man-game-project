@@ -28,7 +28,7 @@ int main()
 	start.setTexture(&background);
 
 	Texture map;
-	map.loadFromFile("Data/maze.jpeg");
+	map.loadFromFile("Data/map.jpeg");
 	game.setTexture(&map);
 
 	//Pac-man Textures
