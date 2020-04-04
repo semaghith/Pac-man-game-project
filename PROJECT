@@ -3,6 +3,7 @@
 #include<iostream>
 #include<fstream>
 #include<vector>
+
 using namespace sf;
 
 int main()
@@ -180,13 +181,13 @@ int main()
 			directionX = 1.0, directionY = 0.0;
 			pacman.setTexture(right);
 		}
-		if (pacman.getPosition().x >= 575 && pacman.getPosition().y == 388)
+		if (pacman.getPosition().x >= 575 && pacman.getPosition().y == 349)
 		{
-			pacman.setPosition(0, 388);
+			pacman.setPosition(0, 349);
 		}
-		else if (pacman.getPosition().x <= 0 && pacman.getPosition().y == 388)
+		else if (pacman.getPosition().x <= 0 && pacman.getPosition().y == 349)
 		{
-			pacman.setPosition(575, 388);
+			pacman.setPosition(575, 349);
 		}
 
 		//rendering
