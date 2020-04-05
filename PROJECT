@@ -1,13 +1,14 @@
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
-#include <fstream>
-#include <iostream>
+#include<SFML/Graphics.hpp>
+#include<SFML/Audio.hpp>
+#include<iostream>
+#include<fstream>
+#include<sstream>
 
-using namespace std;
 using namespace sf;
+using namespace std;
 
-int main(){
-
+int main()
+{
     RenderWindow window(VideoMode(600, 750), " ", Style::Close);
     window.setFramerateLimit(60);
     //window.setVerticalSyncEnabled(true);
@@ -17,12 +18,18 @@ int main(){
     bool KeyPressed = false;
     int arr[21][19];
     float directionX = 0.0, directionY = 0.0;              // Pac-man move
+    int pacmanScore = 0;
 
 
     //shapes
     RectangleShape start;
     start.setSize(Vector2f(600, 600));
     start.setPosition(0, 90);
+
+    CircleShape pacman;
+    pacman.setRadius(12);
+    pacman.setPosition(288, 521);
+    pacman.setFillColor(Color::Yellow);
 
 
     //Textures
@@ -32,25 +39,19 @@ int main(){
 
     Texture brick;
     brick.loadFromFile("Data/brick2.jpg");
-    
+
     //Pac-man Textures
     Texture right;
     right.loadFromFile("Data/pacman-right.jpeg");
-    
+
     Texture left;
     left.loadFromFile("Data/pacman-left.jpeg");
-    
+
     Texture up;
     up.loadFromFile("Data/pacman-up.jpeg");
-    
+
     Texture down;
     down.loadFromFile("Data/pacman-down.jpeg");
-
-
-    //Sprite
-    Sprite pacman;
-    pacman.setTexture(left);
-    pacman.setPosition(288, 520);
 
 
     //font
@@ -68,6 +69,12 @@ int main(){
     tap.setString("TAP TO START!");
     tap.setCharacterSize(30);
     tap.setPosition(200, 450);
+
+    Text score;
+    score.setFont(font);
+    score.setFillColor(Color::White);
+    score.setCharacterSize(20);
+    score.setPosition(50, 50);
 
     /*Text ready;
     tap.setFont(fontready);
@@ -106,16 +113,16 @@ int main(){
             {
                 board[i][j].setTexture(&brick);
             }
-            else
+            else if (arr[i][j] == 0)
             {
                 dot[i][j].setFillColor(Color::Yellow);
             }
             xposBoard += 31.57;
-            xposDot =  xposBoard + 15.78 ;
+            xposDot = xposBoard + 15.78;
         }
         yposBoard += 28.57;
-        yposDot = yposBoard + 14.28 ;
-        xposBoard = 0 , xposDot = 0 ;
+        yposDot = yposBoard + 14.28;
+        xposBoard = 0, xposDot = 0;
     }
 
 
@@ -132,8 +139,8 @@ int main(){
                 KeyPressed = true;
 
             if (Mouse::isButtonPressed(Mouse::Left)) {
-            Vector2i mousepos = Mouse::getPosition(window);
-            printf("x= %i , y= %i \n" , mousepos.x , mousepos.y );
+                Vector2i mousepos = Mouse::getPosition(window);
+                printf("x= %i , y= %i \n", mousepos.x, mousepos.y);
             }
 
             //logic
@@ -143,27 +150,28 @@ int main(){
                 tap.setFillColor(Color::Transparent);
             }
         }
-        pacman.move(directionX, directionY);                 
+        pacman.move(directionX, directionY);
+        
 
         if (Keyboard::isKeyPressed(Keyboard::Up))
         {
             directionX = 0.0, directionY = -1.0;
-            pacman.setTexture(up);
+            pacman.setTexture(&up);
         }
         if (Keyboard::isKeyPressed(Keyboard::Down))
         {
             directionX = 0.0, directionY = 1.0;
-            pacman.setTexture(down);
+            pacman.setTexture(&down);
         }
         if (Keyboard::isKeyPressed(Keyboard::Left))
         {
             directionX = -1.0, directionY = 0.0;
-            pacman.setTexture(left);
+            pacman.setTexture(&left);
         }
         if (Keyboard::isKeyPressed(Keyboard::Right))
         {
             directionX = 1.0, directionY = 0.0;
-            pacman.setTexture(right);
+            pacman.setTexture(&right);
         }
         if (pacman.getPosition().x >= 575 && pacman.getPosition().y == 349)
         {
@@ -173,6 +181,16 @@ int main(){
         {
             pacman.setPosition(575, 349);
         }
+
+      for (int i = 0; i < 21; i++) {
+         for (int j = 0; j < 19; j++) {
+           if (pacman.getGlobalBounds().intersects(dot[i][j].getGlobalBounds()) == true && dot[i][j].getFillColor() == Color::Yellow) {
+                    pacmanScore += 10;
+                    dot[i][j].setFillColor(Color::Transparent);
+           }
+         }
+      }
+
         //rendering
 
         window.clear();
@@ -183,19 +201,26 @@ int main(){
             {
                 if (arr[i][j] == 1)
                 {
-                window.draw(board[i][j]);
+                    window.draw(board[i][j]);
                 }
                 if (arr[i][j] == 0)
                 {
-                window.draw(dot[i][j]);
+                    window.draw(dot[i][j]);
                 }
             }
         }
 
+
         window.draw(pacman);
-        //window.draw(ready);
         window.draw(start);
         window.draw(tap);
+
+        //SCORE
+        stringstream text;
+        text << "Score: " << pacmanScore;
+        score.setString(text.str());
+        window.draw(score);
+
         window.display();
 
     }
