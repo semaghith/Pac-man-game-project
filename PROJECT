@@ -150,8 +150,24 @@ int main()
                 tap.setFillColor(Color::Transparent);
             }
         }
+
         pacman.move(directionX, directionY);
-        
+
+      for (int i = 0; i < 21; i++) {
+         for (int j = 0; j < 19; j++) {
+           if (pacman.getGlobalBounds().intersects(dot[i][j].getGlobalBounds()) && dot[i][j].getFillColor() == Color::Yellow) {
+                    pacmanScore += 10;
+                    dot[i][j].setFillColor(Color::Transparent);
+           }
+           if ( pacman.getGlobalBounds().intersects( board[i][j].getGlobalBounds() ) )
+           {
+               if (arr[i][j] == 1)
+               {
+                  pacman.move(Vector2f(-directionX, -directionY));
+               }
+           }
+         }
+      }
 
         if (Keyboard::isKeyPressed(Keyboard::Up))
         {
@@ -182,14 +198,7 @@ int main()
             pacman.setPosition(575, 349);
         }
 
-      for (int i = 0; i < 21; i++) {
-         for (int j = 0; j < 19; j++) {
-           if (pacman.getGlobalBounds().intersects(dot[i][j].getGlobalBounds()) == true && dot[i][j].getFillColor() == Color::Yellow) {
-                    pacmanScore += 10;
-                    dot[i][j].setFillColor(Color::Transparent);
-           }
-         }
-      }
+
 
         //rendering
 
