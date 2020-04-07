@@ -15,13 +15,13 @@ int main()
 
 
     //variables
-    bool KeyPressed = false;
     int arr[21][19];
-    float directionX = 0.0, directionY = 0.0;              // Pac-man move
     int pacmanScore = 0;
+    bool KeyPressed = false;
+    float directionX = 0.0, directionY = 0.0;              // Pac-man move
 
 
-    //shapes
+    //Shapes
     RectangleShape start;
     start.setSize(Vector2f(600, 600));
     start.setPosition(0, 90);
@@ -29,18 +29,23 @@ int main()
     CircleShape pacman;
     pacman.setRadius(12);
     pacman.setPosition(288, 521);
-    pacman.setFillColor(Color::Yellow);
+
+    RectangleShape line;
+    line.setSize(Vector2f(4, 31.5));
+    line.setFillColor(Color(220, 171, 187));
+    line.setPosition(316, 330);
+    line.rotate(90);
 
 
     //Textures
     Texture background;
     background.loadFromFile("Data/PAC-MAN-Game.jpg");
-    start.setTexture(&background);
 
     Texture brick;
     brick.loadFromFile("Data/brick2.jpg");
 
-    //Pac-man Textures
+    //Pac-Man Textures
+
     Texture right;
     right.loadFromFile("Data/pacman-right.jpeg");
 
@@ -53,35 +58,64 @@ int main()
     Texture down;
     down.loadFromFile("Data/pacman-down.jpeg");
 
+    //Ghosts Textures
 
-    //font
-    Font font;
-    font.loadFromFile("Data/arial.ttf");
+    Texture blinky;
+    blinky.loadFromFile("Data/blinky.jpeg");
 
-    Font fontready;
-    font.loadFromFile("Data/arial.ttf");
+    Texture inky;
+    inky.loadFromFile("Data/inky.jpeg");
+
+    Texture pinky;
+    pinky.loadFromFile("Data/pinky.jpeg");
+
+    Texture clyde;
+    clyde.loadFromFile("Data/clyde.jpeg");
+
+
+    //Fonts
+    Font first;
+    first.loadFromFile("Data/arial.ttf");
+
+
+    //Sprites
+    Sprite blinky1;
+    blinky1.setPosition(288, 291);
+
+    Sprite pinky1;
+    pinky1.setPosition(288, 348);
+
+    Sprite inky1;
+    inky1.setPosition(255, 348);
+
+    Sprite clyde1;
+    clyde1.setPosition(321, 348);
+
+
+    //Set Textures
+    start.setTexture(&background);
+    pacman.setTexture(&left);
+
+    blinky1.setTexture(blinky);
+    pinky1.setTexture(pinky);
+    clyde1.setTexture(clyde);
+    inky1.setTexture(inky);
 
 
     //Text
     Text tap;
-    tap.setFont(font);
+    tap.setFont(first);
     tap.setFillColor(Color::Yellow);
     tap.setString("TAP TO START!");
     tap.setCharacterSize(30);
     tap.setPosition(200, 450);
 
     Text score;
-    score.setFont(font);
-    score.setFillColor(Color::White);
-    score.setCharacterSize(20);
-    score.setPosition(50, 50);
-
-    /*Text ready;
-    tap.setFont(fontready);
-    tap.setFillColor(Color::Red);
-    tap.setString("READY!");
-    tap.setCharacterSize(22);
-    tap.setPosition(272, 401);*/
+    score.setFont(first);
+    score.setFillColor(Color::Transparent);
+    score.setStyle(Text::Bold);
+    score.setCharacterSize(25);
+    score.setPosition(40, 30);
 
 
     //DRAWING THE MAP
@@ -115,7 +149,7 @@ int main()
             }
             else if (arr[i][j] == 0)
             {
-                dot[i][j].setFillColor(Color::Yellow);
+                dot[i][j].setFillColor(Color(220, 171, 187));
             }
             xposBoard += 31.57;
             xposDot = xposBoard + 15.78;
@@ -124,7 +158,6 @@ int main()
         yposDot = yposBoard + 14.28;
         xposBoard = 0, xposDot = 0;
     }
-
 
     //Game loop
     while (window.isOpen())
@@ -138,36 +171,32 @@ int main()
             if (event.type == Event::KeyPressed)
                 KeyPressed = true;
 
-            if (Mouse::isButtonPressed(Mouse::Left)) {
-                Vector2i mousepos = Mouse::getPosition(window);
-                printf("x= %i , y= %i \n", mousepos.x, mousepos.y);
-            }
-
-            //logic
             if (KeyPressed)
             {
                 start.setFillColor(Color::Transparent);
                 tap.setFillColor(Color::Transparent);
+
+                score.setFillColor(Color::White);
             }
         }
 
         pacman.move(directionX, directionY);
 
-      for (int i = 0; i < 21; i++) {
-         for (int j = 0; j < 19; j++) {
-           if (pacman.getGlobalBounds().intersects(dot[i][j].getGlobalBounds()) && dot[i][j].getFillColor() == Color::Yellow) {
+        for (int i = 0; i < 21; i++) {
+            for (int j = 0; j < 19; j++) {
+                if (pacman.getGlobalBounds().intersects(dot[i][j].getGlobalBounds()) && dot[i][j].getFillColor() == (Color(220, 171, 187))) {
                     pacmanScore += 10;
                     dot[i][j].setFillColor(Color::Transparent);
-           }
-           if ( pacman.getGlobalBounds().intersects( board[i][j].getGlobalBounds() ) )
-           {
-               if (arr[i][j] == 1)
-               {
-                  pacman.move(Vector2f(-directionX, -directionY));
-               }
-           }
-         }
-      }
+                }
+                if (pacman.getGlobalBounds().intersects(board[i][j].getGlobalBounds()))
+                {
+                    if (arr[i][j] == 1)
+                    {
+                        pacman.move(Vector2f(-directionX, -directionY));
+                    }
+                }
+            }
+        }
 
         if (Keyboard::isKeyPressed(Keyboard::Up))
         {
@@ -198,8 +227,6 @@ int main()
             pacman.setPosition(575, 349);
         }
 
-
-
         //rendering
 
         window.clear();
@@ -219,16 +246,23 @@ int main()
             }
         }
 
-
         window.draw(pacman);
-        window.draw(start);
-        window.draw(tap);
+
+        window.draw(blinky1);
+        window.draw(inky1);
+        window.draw(pinky1);
+        window.draw(clyde1);
+
+        window.draw(line);
 
         //SCORE
         stringstream text;
-        text << "Score: " << pacmanScore;
+        text << "Score : " << pacmanScore;
         score.setString(text.str());
         window.draw(score);
+
+        window.draw(start);
+        window.draw(tap);
 
         window.display();
 
