@@ -151,11 +151,16 @@ int main()
             {
                 dot[i][j].setFillColor(Color(220, 171, 187));
             }
+            else if (arr[i][j] == 3)
+            {
+                dot[i][j].setFillColor(Color(220, 171, 187));
+                dot[i][j].setRadius(6);
+            }
             xposBoard += 31.57;
             xposDot = xposBoard + 15.78;
         }
         yposBoard += 28.57;
-        yposDot = yposBoard + 14.28;
+        yposDot = yposBoard + 14.27;
         xposBoard = 0, xposDot = 0;
     }
 
@@ -185,8 +190,16 @@ int main()
         for (int i = 0; i < 21; i++) {
             for (int j = 0; j < 19; j++) {
                 if (pacman.getGlobalBounds().intersects(dot[i][j].getGlobalBounds()) && dot[i][j].getFillColor() == (Color(220, 171, 187))) {
-                    pacmanScore += 10;
-                    dot[i][j].setFillColor(Color::Transparent);
+                    if (arr[i][j] == 3)
+                    {
+                        pacmanScore += 50;
+                        dot[i][j].setFillColor(Color::Transparent);
+                    }
+                    else
+                    {
+                        pacmanScore += 10;
+                        dot[i][j].setFillColor(Color::Transparent);
+                    }
                 }
                 if (pacman.getGlobalBounds().intersects(board[i][j].getGlobalBounds()))
                 {
@@ -239,7 +252,7 @@ int main()
                 {
                     window.draw(board[i][j]);
                 }
-                if (arr[i][j] == 0)
+                if ( arr[i][j] == 0 || arr[i][j] == 3 )
                 {
                     window.draw(dot[i][j]);
                 }
