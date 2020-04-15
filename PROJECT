@@ -7,6 +7,82 @@
 using namespace sf;
 using namespace std;
 
+
+void computeScore(CircleShape& pacman, int& score, int arr[21][19], CircleShape dot[21][19]) {
+    for (int i = 0; i < 21; i++) {
+        for (int j = 0; j < 19; j++) {
+            if (pacman.getGlobalBounds().intersects(dot[i][j].getGlobalBounds()) && dot[i][j].getFillColor() == (Color(220, 171, 187))) {
+
+                if (arr[i][j] == 3) {
+                    score += 50;
+                    cout << "EAT\n";
+                    cout << score << endl;
+                }
+                if (arr[i][j] == 0) {
+                    score += 10;
+                    cout << "eat\n";
+                    cout << score << endl;
+
+                }
+                dot[i][j].setFillColor(Color::Transparent);
+            }
+        }
+    }
+}
+
+void collision(CircleShape& pacman, int arr[21][19], RectangleShape board[21][19], float& directionX, float& directionY) {
+    for (int i = 0; i < 21; i++) {
+        for (int j = 0; j < 19; j++) {
+            if (pacman.getGlobalBounds().intersects(board[i][j].getGlobalBounds())) {
+                if (arr[i][j] == 1) {
+                    pacman.move(-directionX, -directionY);
+                }
+            }
+        }
+    }
+}
+
+void ghostCollision(CircleShape& pacman, Sprite& blinky, Sprite& pinky, Sprite& inky, Sprite& clyde, float& directionX, float& directionY, int& liveCounter) {
+    if (pacman.getGlobalBounds().intersects(blinky.getGlobalBounds())) {
+        pacman.setPosition(288, 521);  
+        directionX = 0; directionY = 0;
+        liveCounter++;
+    }
+    if (pacman.getGlobalBounds().intersects(pinky.getGlobalBounds())) {
+        pacman.setPosition(288, 521);
+        directionX = 0; directionY = 0;
+        liveCounter++;
+    }
+    if (pacman.getGlobalBounds().intersects(inky.getGlobalBounds())) {
+        pacman.setPosition(288, 521);
+        directionX = 0; directionY = 0;
+        liveCounter++;
+    }
+    if (pacman.getGlobalBounds().intersects(clyde.getGlobalBounds())) {
+        pacman.setPosition(288, 521);
+        directionX = 0; directionY = 0;
+        liveCounter++;
+    }
+    
+}
+
+void recreateDots(int arr[21][19], CircleShape dot[21][19]) {
+    for (int i = 0; i < 21; i++) {
+        for (int j = 0; j < 19; j++) {
+            if (arr[i][j] == 0 && dot[i][j].getFillColor() == Color::Transparent) {
+                dot[i][j].setFillColor(Color(220, 171, 187));
+            }
+
+            else if (arr[i][j] == 3 && dot[i][j].getFillColor() == Color::Transparent) {
+                dot[i][j].setFillColor(Color(220,171,187));
+            }
+        }
+    }
+}
+
+
+
+
 int main()
 {
     RenderWindow window(VideoMode(600, 750), " ", Style::Close);
@@ -19,6 +95,7 @@ int main()
     int pacmanScore = 0;
     bool KeyPressed = false;
     float directionX = 0.0, directionY = 0.0;              // Pac-man move
+    int liveCounter = 0;
 
 
     //Shapes
@@ -29,6 +106,14 @@ int main()
     CircleShape pacman;
     pacman.setRadius(12);
     pacman.setPosition(288, 521);
+
+    CircleShape firstlive;
+    firstlive.setRadius(14);
+    firstlive.setPosition(5, 705);
+
+    CircleShape secondlive;
+    secondlive.setRadius(14);
+    secondlive.setPosition(37, 705);
 
     RectangleShape line;
     line.setSize(Vector2f(4, 31.5));
@@ -60,47 +145,25 @@ int main()
 
     //Ghosts Textures
 
-    Texture blinky;
-    blinky.loadFromFile("Data/blinky.jpeg");
+    Texture blinkyTexture;
+    blinkyTexture.loadFromFile("Data/blinky.jpeg");
 
-    Texture inky;
-    inky.loadFromFile("Data/inky.jpeg");
+    Texture inkyTexture;
+    inkyTexture.loadFromFile("Data/inky.jpeg");
 
-    Texture pinky;
-    pinky.loadFromFile("Data/pinky.jpeg");
+    Texture pinkyTexture;
+    pinkyTexture.loadFromFile("Data/pinky.jpeg");
 
-    Texture clyde;
-    clyde.loadFromFile("Data/clyde.jpeg");
+    Texture clydeTexture;
+    clydeTexture.loadFromFile("Data/clyde.jpeg");
+
+    firstlive.setTexture(&left);
+    secondlive.setTexture(&left);
 
 
     //Fonts
     Font first;
     first.loadFromFile("Data/arial.ttf");
-
-
-    //Sprites
-    Sprite blinky1;
-    blinky1.setPosition(288, 291);
-
-    Sprite pinky1;
-    pinky1.setPosition(288, 348);
-
-    Sprite inky1;
-    inky1.setPosition(255, 348);
-
-    Sprite clyde1;
-    clyde1.setPosition(321, 348);
-
-
-    //Set Textures
-    start.setTexture(&background);
-    pacman.setTexture(&left);
-
-    blinky1.setTexture(blinky);
-    pinky1.setTexture(pinky);
-    clyde1.setTexture(clyde);
-    inky1.setTexture(inky);
-
 
     //Text
     Text tap;
@@ -117,6 +180,53 @@ int main()
     score.setCharacterSize(25);
     score.setPosition(40, 30);
 
+    Text level1Text;
+    level1Text.setFont(first);
+    level1Text.setFillColor(Color::White);
+    level1Text.setStyle(Text::Bold);
+    level1Text.setString("Level 1");
+    level1Text.setCharacterSize(28);
+    level1Text.setPosition(455, 700);
+
+    Text GameOverText;
+    GameOverText.setFont(first);
+    GameOverText.setPosition(220, 400);
+    GameOverText.setString("GAME OVER!");
+    GameOverText.setFillColor(Color::Transparent);
+
+    Text ReadyText;
+    ReadyText.setFont(first);
+    ReadyText.setPosition(220, 400);
+    ReadyText.setString("READY");
+    ReadyText.setFillColor(Color::White);
+
+
+    //Sprites
+    Sprite blinkySprite;
+    blinkySprite.setPosition(288, 291);
+
+    Sprite pinkySprite;
+    pinkySprite.setPosition(288, 348);
+
+    Sprite inkySprite;
+    inkySprite.setPosition(255, 348);
+
+    Sprite clydeSprite;
+    clydeSprite.setPosition(321, 348);
+
+
+    //Set Textures
+    start.setTexture(&background);
+    pacman.setTexture(&left);
+
+    blinkySprite.setTexture(blinkyTexture);
+    pinkySprite.setTexture(pinkyTexture);
+    clydeSprite.setTexture(clydeTexture);
+    inkySprite.setTexture(inkyTexture);
+
+
+
+    
 
     //DRAWING THE MAP
     ifstream boardfile("Data/board2.txt");
@@ -170,75 +280,84 @@ int main()
         Event event;
         while (window.pollEvent(event))
         {
-            if (event.type == Event::Closed)
+            if (event.type == Event::Closed) {
                 window.close();
+            }
 
-            if (event.type == Event::KeyPressed)
+            if (event.type == Event::KeyPressed) {
                 KeyPressed = true;
-
-            if (KeyPressed)
-            {
+            }
+            if (KeyPressed) {
                 start.setFillColor(Color::Transparent);
                 tap.setFillColor(Color::Transparent);
-
                 score.setFillColor(Color::White);
             }
-        }
-
-        pacman.move(directionX, directionY);
-
-        for (int i = 0; i < 21; i++) {
-            for (int j = 0; j < 19; j++) {
-                if (pacman.getGlobalBounds().intersects(dot[i][j].getGlobalBounds()) && dot[i][j].getFillColor() == (Color(220, 171, 187))) {
-                    if (arr[i][j] == 3)
-                    {
-                        pacmanScore += 50;
-                        dot[i][j].setFillColor(Color::Transparent);
-                    }
-                    else
-                    {
-                        pacmanScore += 10;
-                        dot[i][j].setFillColor(Color::Transparent);
-                    }
-                }
-                if (pacman.getGlobalBounds().intersects(board[i][j].getGlobalBounds()))
-                {
-                    if (arr[i][j] == 1)
-                    {
-                        pacman.move(Vector2f(-directionX, -directionY));
-                    }
-                }
+            if (Mouse::isButtonPressed(Mouse::Left)) {
+                Vector2i mousepos = Mouse::getPosition(window);
+                printf("x = %i, y = %i\n", mousepos.x, mousepos.y);
             }
         }
+        pacman.move(directionX, directionY);
+        computeScore(pacman, pacmanScore, arr, dot);
+        collision(pacman, arr, board, directionX, directionY);
+        ghostCollision(pacman, blinkySprite, pinkySprite, inkySprite, clydeSprite,directionX,directionY, liveCounter);
 
-        if (Keyboard::isKeyPressed(Keyboard::Up))
-        {
-            directionX = 0.0, directionY = -1.0;
-            pacman.setTexture(&up);
+        if (pacmanScore == 1660) {
+            recreateDots(arr, dot);
+            pacman.setPosition(288, 521);
         }
-        if (Keyboard::isKeyPressed(Keyboard::Down))
-        {
-            directionX = 0.0, directionY = 1.0;
+        
+        if (Keyboard::isKeyPressed(Keyboard::Up)) {
+            cout << "up\n";
+            directionX = 0; directionY = -2;
+            pacman.setTexture(&up);
+                   
+        }
+        else if (Keyboard::isKeyPressed(Keyboard::Down)) {
+            cout << "down\n";
+            directionX = 0; directionY = 2;
             pacman.setTexture(&down);
         }
-        if (Keyboard::isKeyPressed(Keyboard::Left))
-        {
-            directionX = -1.0, directionY = 0.0;
+        else if (Keyboard::isKeyPressed(Keyboard::Left)) {
+            cout << "left\n";
+            directionX = -2; directionY = 0;
             pacman.setTexture(&left);
+           
+
         }
-        if (Keyboard::isKeyPressed(Keyboard::Right))
-        {
-            directionX = 1.0, directionY = 0.0;
+        else if (Keyboard::isKeyPressed(Keyboard::Right)) {
+            cout << "right\n";
+            directionX = 2; directionY = 0;
             pacman.setTexture(&right);
+
         }
-        if (pacman.getPosition().x >= 575 && pacman.getPosition().y == 349)
-        {
+
+        if (pacman.getPosition().x >= 599 && (pacman.getPosition().y >= 349 || pacman.getPosition().y <= 375)) {
             pacman.setPosition(0, 349);
         }
-        else if (pacman.getPosition().x <= 0 && pacman.getPosition().y == 349)
-        {
+        else if (pacman.getPosition().x <= 0 && (pacman.getPosition().y >= 349|| pacman.getPosition().y <=373 )) {
             pacman.setPosition(575, 349);
+        } 
+   
+        if (liveCounter == 1) {
+            secondlive.setFillColor(Color::Transparent);
         }
+        else if (liveCounter == 2) {
+            firstlive.setFillColor(Color::Transparent);
+        }
+        
+        else if (liveCounter == 3) {
+            GameOverText.setFillColor(Color::Red);
+            blinkySprite.setColor(Color::Transparent);
+            pinkySprite.setColor(Color::Transparent);
+            inkySprite.setColor(Color::Transparent);
+            clydeSprite.setColor(Color::Transparent);
+            pacman.setFillColor(Color::Transparent);
+            directionX = 0; directionY = 0;
+        }
+
+
+
 
         //rendering
 
@@ -252,7 +371,7 @@ int main()
                 {
                     window.draw(board[i][j]);
                 }
-                if ( arr[i][j] == 0 || arr[i][j] == 3 )
+                if (arr[i][j] == 0 || arr[i][j] == 3)
                 {
                     window.draw(dot[i][j]);
                 }
@@ -260,13 +379,12 @@ int main()
         }
 
         window.draw(pacman);
-
-        window.draw(blinky1);
-        window.draw(inky1);
-        window.draw(pinky1);
-        window.draw(clyde1);
-
+        window.draw(blinkySprite);
+        window.draw(inkySprite);
+        window.draw(pinkySprite);
+        window.draw(clydeSprite);
         window.draw(line);
+
 
         //SCORE
         stringstream text;
@@ -274,9 +392,16 @@ int main()
         score.setString(text.str());
         window.draw(score);
 
+        if (KeyPressed)
+        {
+            window.draw(firstlive);
+            window.draw(secondlive);
+            window.draw(level1Text);
+            
+        }
+        window.draw(GameOverText);
         window.draw(start);
         window.draw(tap);
-
         window.display();
 
     }
