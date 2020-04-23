@@ -7,23 +7,18 @@
 using namespace sf;
 using namespace std;
 
-
-void computeScore(CircleShape& pacman, int& score, int arr[21][19], CircleShape dot[21][19]) {
+void computeScore(CircleShape& pacman, int& score, int arr[21][19], CircleShape dot[21][19], Sound& eatSound) {
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 19; j++) {
             if (pacman.getGlobalBounds().intersects(dot[i][j].getGlobalBounds()) && dot[i][j].getFillColor() == (Color(220, 171, 187))) {
+                eatSound.play();
 
-                if (arr[i][j] == 3) {
+                if (arr[i][j] == 3)
                     score += 50;
-                    cout << "EAT\n";
-                    cout << score << endl;
-                }
-                if (arr[i][j] == 0) {
-                    score += 10;
-                    cout << "eat\n";
-                    cout << score << endl;
 
-                }
+                if (arr[i][j] == 0)
+                    score += 10;
+
                 dot[i][j].setFillColor(Color::Transparent);
             }
         }
@@ -31,41 +26,31 @@ void computeScore(CircleShape& pacman, int& score, int arr[21][19], CircleShape 
 }
 
 void collision(CircleShape& pacman, int arr[21][19], RectangleShape board[21][19], float& directionX, float& directionY) {
+
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 19; j++) {
             if (pacman.getGlobalBounds().intersects(board[i][j].getGlobalBounds())) {
-                if (arr[i][j] == 1) {
+                if (arr[i][j] == 1)
                     pacman.move(-directionX, -directionY);
-                }
             }
         }
     }
 }
-
 
 void ghostCollision(CircleShape& pacman, float& directionX, float& directionY, int& liveCounter) {
     directionX = 0; directionY = 0;
     pacman.setPosition(288, 521);
     liveCounter++;
-    
 }
 
 void recreateDots(int arr[21][19], CircleShape dot[21][19]) {
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 19; j++) {
-            if (arr[i][j] == 0 && dot[i][j].getFillColor() == Color::Transparent) {
-                dot[i][j].setFillColor(Color(220, 171, 187));
-            }
 
-            else if (arr[i][j] == 3 && dot[i][j].getFillColor() == Color::Transparent) {
-                dot[i][j].setFillColor(Color(220, 171, 187));
-            }
+            dot[i][j].setFillColor(Color(220, 171, 187));
         }
     }
 }
-
-
-
 
 int main()
 {
@@ -77,9 +62,10 @@ int main()
     //variables
     int arr[21][19];
     int pacmanScore = 0;
+    int liveCounter = 0;
+    bool isPlay = true;
     bool KeyPressed = false;
     float directionX = -2.0, directionY = 0.0;              // Pac-man move
-    int liveCounter = 0;
 
 
     //Shapes
@@ -141,9 +127,6 @@ int main()
     Texture clydeTexture;
     clydeTexture.loadFromFile("Data/clyde.jpeg");
 
-    firstlive.setTexture(&left);
-    secondlive.setTexture(&left);
-
 
     //Fonts
     Font first;
@@ -172,11 +155,11 @@ int main()
     level1Text.setCharacterSize(28);
     level1Text.setPosition(455, 700);
 
-    Text GameOverText;
-    GameOverText.setFont(first);
-    GameOverText.setPosition(220, 400);
-    GameOverText.setString("GAME OVER!");
-    GameOverText.setFillColor(Color::Transparent);
+    Text displayText;
+    displayText.setFont(first);
+    displayText.setPosition(209, 400);
+    displayText.setString("GAME OVER!");
+    displayText.setFillColor(Color::Transparent);
 
     Text ReadyText;
     ReadyText.setFont(first);
@@ -208,10 +191,34 @@ int main()
     clydeSprite.setTexture(clydeTexture);
     inkySprite.setTexture(inkyTexture);
 
+    firstlive.setTexture(&left);
+    secondlive.setTexture(&left);
+
+
     //Clocks
     Clock readyClock;
 
 
+    //Sound Buffer 
+    SoundBuffer beginnigBuffer;
+    beginnigBuffer.loadFromFile("Data/pacman_beginning.wav");
+
+    SoundBuffer eatBuffer;
+    eatBuffer.loadFromFile("Data/pacman_dots.wav");
+
+    SoundBuffer deathBuffer;
+    deathBuffer.loadFromFile("Data/pacman_death.wav");
+
+
+    //Sound 
+    Sound beginningSound;
+    beginningSound.setBuffer(beginnigBuffer);
+
+    Sound eatSound;
+    eatSound.setBuffer(eatBuffer);
+
+    Sound deathSound;
+    deathSound.setBuffer(deathBuffer);
 
 
     //DRAWING THE MAP
@@ -272,85 +279,90 @@ int main()
 
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::Space) {
                 KeyPressed = true;
-                start.setFillColor(Color::Transparent);
-                tap.setFillColor(Color::Transparent);
-                score.setFillColor(Color::White);
-            }
-            if (KeyPressed) {
+
                 start.setFillColor(Color::Transparent);
                 tap.setFillColor(Color::Transparent);
                 score.setFillColor(Color::White);
             }
 
-            if (Mouse::isButtonPressed(Mouse::Left)) {
-                Vector2i mousepos = Mouse::getPosition(window);
-                printf("x = %i, y = %i\n", mousepos.x, mousepos.y);
-            }
             if (pacmanScore == 1660) {
+                //  directionX = 0; directionY = 0;
                 recreateDots(arr, dot);
                 pacman.setPosition(288, 521);
-
+            }
+            else if (pacmanScore == 3320)
+            {
+                isPlay = false;
+                blinkySprite.setColor(Color::Transparent);
+                pinkySprite.setColor(Color::Transparent);
+                inkySprite.setColor(Color::Transparent);
+                clydeSprite.setColor(Color::Transparent);
+                displayText.setString("YOU WIN!");
+                displayText.setFillColor(Color::Red);
+                directionX = 0; directionY = 0;
             }
 
         }
-        
-        if (Keyboard::isKeyPressed(Keyboard::Space)) {
-            ReadyText.setFillColor(Color::Yellow);
-            readyClock.restart();
-        }
-        if (readyClock.getElapsedTime().asSeconds() > 2.0f) {
-            ReadyText.setFillColor(Color::Transparent);
-            pacman.move(directionX, directionY);
 
+
+        if (KeyPressed) {
+
+            if (Keyboard::isKeyPressed(Keyboard::Space)) {
+                ReadyText.setFillColor(Color::Yellow);
+                beginningSound.play();
+                readyClock.restart();
+            }
+            if (readyClock.getElapsedTime().asSeconds() > 4.0f) {
+                ReadyText.setFillColor(Color::Transparent);
+                pacman.move(directionX, directionY);
+
+            }
         }
 
-        computeScore(pacman, pacmanScore, arr, dot);
+        computeScore(pacman, pacmanScore, arr, dot, eatSound);
         collision(pacman, arr, board, directionX, directionY);
-        
+
+
         //Checking ghosts collision
-        if (pacman.getGlobalBounds().intersects(blinkySprite.getGlobalBounds())) { 
+        if (pacman.getGlobalBounds().intersects(blinkySprite.getGlobalBounds())) {
             ghostCollision(pacman, directionX, directionY, liveCounter);
+            deathSound.play();
         }
         else if (pacman.getGlobalBounds().intersects(pinkySprite.getGlobalBounds())) {
             ghostCollision(pacman, directionX, directionY, liveCounter);
+            deathSound.play();
         }
         else if (pacman.getGlobalBounds().intersects(inkySprite.getGlobalBounds())) {
             ghostCollision(pacman, directionX, directionY, liveCounter);
+            deathSound.play();
 
         }
         else if (pacman.getGlobalBounds().intersects(clydeSprite.getGlobalBounds())) {
             ghostCollision(pacman, directionX, directionY, liveCounter);
-
+            deathSound.play();
         }
-        //Checking ghosts collision
+
 
         //Movement
-        if (Keyboard::isKeyPressed(Keyboard::Up)) {
-            cout << "up\n";
-            directionX = 0; directionY = -2;
-            pacman.setTexture(&up);
-
+        if (isPlay) {
+            if (Keyboard::isKeyPressed(Keyboard::Up)) {
+                directionX = 0; directionY = -2;
+                pacman.setTexture(&up);
+            }
+            else if (Keyboard::isKeyPressed(Keyboard::Down)) {
+                directionX = 0; directionY = 2;
+                pacman.setTexture(&down);
+            }
+            else if (Keyboard::isKeyPressed(Keyboard::Left)) {
+                directionX = -2; directionY = 0;
+                pacman.setTexture(&left);
+            }
+            else if (Keyboard::isKeyPressed(Keyboard::Right)) {
+                directionX = 2; directionY = 0;
+                pacman.setTexture(&right);
+            }
         }
-        else if (Keyboard::isKeyPressed(Keyboard::Down)) {
-            cout << "down\n";
-            directionX = 0; directionY = 2;
-            pacman.setTexture(&down);
-        }
-        else if (Keyboard::isKeyPressed(Keyboard::Left)) {
-            cout << "left\n";
-            directionX = -2; directionY = 0;
-            pacman.setTexture(&left);
 
-
-        }
-        else if (Keyboard::isKeyPressed(Keyboard::Right)) {
-            cout << "right\n";
-            directionX = 2; directionY = 0;
-            pacman.setTexture(&right);
-
-        }
-        //Movement
-        
 
         if (pacman.getPosition().x >= 599 && (pacman.getPosition().y >= 349 || pacman.getPosition().y <= 375)) {
             pacman.setPosition(0, 349);
@@ -359,15 +371,17 @@ int main()
             pacman.setPosition(575, 349);
         }
 
-        if (liveCounter == 1) {
+        if (liveCounter == 1)
             secondlive.setFillColor(Color::Transparent);
-        }
-        else if (liveCounter == 2) {
-            firstlive.setFillColor(Color::Transparent);
-        }
 
-        else if (liveCounter == 3) {
-            GameOverText.setFillColor(Color::Red);
+        else if (liveCounter == 2)
+            firstlive.setFillColor(Color::Transparent);
+
+
+        else if (liveCounter == 3)
+        {
+            isPlay = false;
+            displayText.setFillColor(Color::Red);
             blinkySprite.setColor(Color::Transparent);
             pinkySprite.setColor(Color::Transparent);
             inkySprite.setColor(Color::Transparent);
@@ -375,7 +389,6 @@ int main()
             pacman.setFillColor(Color::Transparent);
             directionX = 0; directionY = 0;
         }
-
 
 
 
@@ -420,13 +433,12 @@ int main()
 
         }
         window.draw(ReadyText);
-        window.draw(GameOverText);
+        window.draw(displayText);
         window.draw(start);
         window.draw(tap);
+
         window.display();
 
     }
     return 0;
 }
-
-
