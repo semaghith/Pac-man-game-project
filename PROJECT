@@ -7,7 +7,7 @@
 using namespace sf;
 using namespace std;
 
-void computeScore(CircleShape& pacman, int& score, int arr[21][19], CircleShape dot[21][19], Sound& eatSound) {
+void computeScore(Sprite& pacman, int& score, int arr[21][19], CircleShape dot[21][19], Sound& eatSound) {
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 19; j++) {
             if (pacman.getGlobalBounds().intersects(dot[i][j].getGlobalBounds()) && dot[i][j].getFillColor() == (Color(220, 171, 187))) {
@@ -25,7 +25,7 @@ void computeScore(CircleShape& pacman, int& score, int arr[21][19], CircleShape 
     }
 }
 
-void collision(CircleShape& pacman, int arr[21][19], RectangleShape board[21][19], float& directionX, float& directionY) {
+void collision(Sprite& pacman, int arr[21][19], RectangleShape board[21][19], float& directionX, float& directionY) {
 
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 19; j++) {
@@ -37,7 +37,7 @@ void collision(CircleShape& pacman, int arr[21][19], RectangleShape board[21][19
     }
 }
 
-void ghostCollision(CircleShape& pacman, float& directionX, float& directionY, int& liveCounter) {
+void ghostCollision(Sprite& pacman, float& directionX, float& directionY, int& liveCounter) {
     directionX = 0; directionY = 0;
     pacman.setPosition(288, 521);
     liveCounter++;
@@ -52,6 +52,23 @@ void recreateDots(int arr[21][19], CircleShape dot[21][19]) {
     }
 }
 
+void animUpdate(Clock& animClock, IntRect& rectSourceSprite, Sprite& pacman)
+{
+    if (animClock.getElapsedTime().asSeconds() > 0.075555f)
+    {
+        if (rectSourceSprite.left == 48)
+        {
+            rectSourceSprite.left = 0;
+        }
+        else
+        {
+            rectSourceSprite.left += 24;
+        }
+        pacman.setTextureRect(rectSourceSprite);
+        animClock.restart();
+    }
+}
+
 int main()
 {
     RenderWindow window(VideoMode(600, 750), " ", Style::Close);
@@ -59,13 +76,13 @@ int main()
     //window.setVerticalSyncEnabled(true);
 
 
-    //variables
+    //Variables
     int arr[21][19];
     int pacmanScore = 0;
     int liveCounter = 0;
     bool isPlay = true;
     bool KeyPressed = false;
-    float directionX = -2.0, directionY = 0.0;              // Pac-man move
+    float directionX = -1.0, directionY = 0.0;              // Pac-man move
 
 
     //Shapes
@@ -73,24 +90,11 @@ int main()
     start.setSize(Vector2f(600, 600));
     start.setPosition(0, 90);
 
-    CircleShape pacman;
-    pacman.setRadius(12);
-    pacman.setPosition(288, 521);
-
-    CircleShape firstlive;
-    firstlive.setRadius(14);
-    firstlive.setPosition(5, 705);
-
-    CircleShape secondlive;
-    secondlive.setRadius(14);
-    secondlive.setPosition(37, 705);
-
     RectangleShape line;
     line.setSize(Vector2f(4, 31.5));
     line.setFillColor(Color(220, 171, 187));
     line.setPosition(316, 330);
     line.rotate(90);
-
 
     //Textures
     Texture background;
@@ -99,22 +103,16 @@ int main()
     Texture brick;
     brick.loadFromFile("Data/brick2.jpg");
 
-    //Pac-Man Textures
+    Texture Spritesheet;
+    Spritesheet.loadFromFile("Data/Spritesheet.png");
 
-    Texture right;
-    right.loadFromFile("Data/pacman-right.jpeg");
+    Texture firstLiveTexture;
+    firstLiveTexture.loadFromFile("Data/pacman-left.png");
 
-    Texture left;
-    left.loadFromFile("Data/pacman-left.jpeg");
-
-    Texture up;
-    up.loadFromFile("Data/pacman-up.jpeg");
-
-    Texture down;
-    down.loadFromFile("Data/pacman-down.jpeg");
+    Texture secondLiveTexture;
+    secondLiveTexture.loadFromFile("Data/pacman-left.png");
 
     //Ghosts Textures
-
     Texture blinkyTexture;
     blinkyTexture.loadFromFile("Data/blinky.jpeg");
 
@@ -126,7 +124,6 @@ int main()
 
     Texture clydeTexture;
     clydeTexture.loadFromFile("Data/clyde.jpeg");
-
 
     //Fonts
     Font first;
@@ -167,8 +164,12 @@ int main()
     ReadyText.setString("READY");
     ReadyText.setFillColor(Color::White);
 
+    IntRect rectSourceSprite(0, 0, 24, 26);
 
     //Sprites
+    Sprite pacman(Spritesheet, rectSourceSprite);
+    pacman.setPosition(288, 521);
+
     Sprite blinkySprite;
     blinkySprite.setPosition(288, 291);
 
@@ -181,23 +182,27 @@ int main()
     Sprite clydeSprite;
     clydeSprite.setPosition(321, 348);
 
+    Sprite firstLiveSprite;
+    firstLiveSprite.setPosition(40, 705);
+
+    Sprite secondLiveSprite;
+    secondLiveSprite.setPosition(70, 705);
 
     //Set Textures
     start.setTexture(&background);
-    pacman.setTexture(&left);
+    pacman.setTexture(Spritesheet);
 
     blinkySprite.setTexture(blinkyTexture);
     pinkySprite.setTexture(pinkyTexture);
     clydeSprite.setTexture(clydeTexture);
     inkySprite.setTexture(inkyTexture);
 
-    firstlive.setTexture(&left);
-    secondlive.setTexture(&left);
-
+    firstLiveSprite.setTexture(firstLiveTexture);
+    secondLiveSprite.setTexture(secondLiveTexture);
 
     //Clocks
     Clock readyClock;
-
+    Clock animClock;
 
     //Sound Buffer 
     SoundBuffer beginnigBuffer;
@@ -208,7 +213,6 @@ int main()
 
     SoundBuffer deathBuffer;
     deathBuffer.loadFromFile("Data/pacman_death.wav");
-
 
     //Sound 
     Sound beginningSound;
@@ -304,7 +308,6 @@ int main()
 
         }
 
-
         if (KeyPressed) {
 
             if (Keyboard::isKeyPressed(Keyboard::Space)) {
@@ -342,25 +345,30 @@ int main()
             deathSound.play();
         }
 
-
         //Movement
         if (isPlay) {
-            if (Keyboard::isKeyPressed(Keyboard::Up)) {
-                directionX = 0; directionY = -2;
-                pacman.setTexture(&up);
+            if (Keyboard::isKeyPressed(Keyboard::Left))
+            {
+                directionX = -1.0, directionY = 0.0;
+                rectSourceSprite.top = 0;
             }
-            else if (Keyboard::isKeyPressed(Keyboard::Down)) {
-                directionX = 0; directionY = 2;
-                pacman.setTexture(&down);
+            if (Keyboard::isKeyPressed(Keyboard::Right))
+            {
+                directionX = 1.0, directionY = 0.0;
+                rectSourceSprite.top = 26;
             }
-            else if (Keyboard::isKeyPressed(Keyboard::Left)) {
-                directionX = -2; directionY = 0;
-                pacman.setTexture(&left);
+            if (Keyboard::isKeyPressed(Keyboard::Up))
+            {
+                directionX = 0.0, directionY = -1.0;
+                rectSourceSprite.top = 52;
             }
-            else if (Keyboard::isKeyPressed(Keyboard::Right)) {
-                directionX = 2; directionY = 0;
-                pacman.setTexture(&right);
+            if (Keyboard::isKeyPressed(Keyboard::Down))
+            {
+                directionX = 0.0, directionY = 1.0;
+                rectSourceSprite.top = 78;
             }
+            animUpdate(animClock, rectSourceSprite, pacman);
+            
         }
 
 
@@ -372,10 +380,10 @@ int main()
         }
 
         if (liveCounter == 1)
-            secondlive.setFillColor(Color::Transparent);
+            secondLiveSprite.setColor(Color::Transparent);
 
         else if (liveCounter == 2)
-            firstlive.setFillColor(Color::Transparent);
+            firstLiveSprite.setColor(Color::Transparent);
 
 
         else if (liveCounter == 3)
@@ -386,11 +394,9 @@ int main()
             pinkySprite.setColor(Color::Transparent);
             inkySprite.setColor(Color::Transparent);
             clydeSprite.setColor(Color::Transparent);
-            pacman.setFillColor(Color::Transparent);
+            pacman.setColor(Color::Transparent);
             directionX = 0; directionY = 0;
         }
-
-
 
         //rendering
 
@@ -427,8 +433,8 @@ int main()
 
         if (KeyPressed)
         {
-            window.draw(firstlive);
-            window.draw(secondlive);
+            window.draw(firstLiveSprite);
+            window.draw(secondLiveSprite);
             window.draw(level1Text);
 
         }
